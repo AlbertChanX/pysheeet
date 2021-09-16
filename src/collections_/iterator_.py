@@ -2,27 +2,56 @@ from collections import Iterable, Iterator, Generator
 from inspect import isgenerator, isgeneratorfunction, iscoroutine
 
 
-if __name__ == '__main__':
-    s = 'test'  # list tuple dict
-    print(isinstance(s, Iterable))
-    print(hasattr(s, '__iter__'))
-    print(isinstance(s, Iterator))
-    print(hasattr(s, '__next__'))
+class FakeIterable:
+    def __iter__(self):
+        return 1
 
-    print(isinstance(iter(s), Iterator))
+
+class FakeIterator:
+    def __iter__(self):
+        return 1
+
+    def __next__(self):
+        return self.__iter__()
+
+
+if __name__ == '__main__':
+    """
+    str list tuple dict
+    1. Iterable 实现了__iter__方法
+    2. Iterator 实现了 __iter__、__next__方法
+    """
+    s = 'test'
+    print(isinstance(s, Iterable))  # True
+    print(hasattr(s, '__iter__'))  # True
+    print(isinstance(s, Iterator))  # False
+    print(hasattr(s, '__next__'))  # False
+
+    print(isinstance(iter(s), Iterator))  # True
+    print(isinstance(FakeIterable(), Iterable))  # True
+    print(isinstance(FakeIterator(), Iterator))  # True
+
 
     def gen():
         for i in range(10):
+            print(f'\nbefore yield: i={i}')
             n = yield i
-            print(n)
             if n is not None:
-                return
+                return 'stop'
+            print(f'after yield: n={n}\n')
+
+
     g = gen()
     print(isgenerator(g), isgeneratorfunction(gen), iscoroutine(g))
     # send()的作用是在next()的基础上，多了个给xx赋值的功能。 next <==> send(None)
-    next(g)
-    g.__next__()
-    print(g.send(None))
-    g.send(1)
+    print(f'next(g): {next(g)}')
+    print(f'g.__next__(): {g.__next__()}')
+    print(f'g.send(None): {g.send(None)}')
+    # g.throw(ValueError)
+    g.close()
+    try:
+        v = g.send(1)
+    except StopIteration as e:
+        print(f'{repr(e)}: {e.value}')
     print(isinstance(g, Generator))
     print(isinstance(g, Iterator))

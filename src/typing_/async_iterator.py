@@ -1,7 +1,8 @@
 import asyncio
 
 """
-实现了__aiter__()和__anext__()方法的对象，必须返回一个awaitable对象。async_for支持处理异步迭代器的__anext__()方法返回的可等待对象。
+实现了__aiter__()和__anext__()方法的对象，必须返回一个awaitable对象。
+async_for支持处理异步迭代器的__anext__()方法返回的可等待对象。
 """
 
 
